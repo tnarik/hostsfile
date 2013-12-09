@@ -65,7 +65,7 @@ class Manipulator
   # @option options [Fixnum] :priority
   #   the relative priority of this entry (compared to others)
   def add(options = {})
-    entry = Entry.new(
+    entry = ::Hostsfile::Entry.new(
       ip_address: options[:ip_address],
       hostname:   options[:hostname],
       aliases:    options[:aliases],
@@ -223,7 +223,7 @@ class Manipulator
     #   Array of lines from /etc/hosts file
     def collect_and_flatten(contents)
       contents.each do |line|
-        entry = Entry.parse(line)
+        entry = ::Hostsfile::Entry.parse(line)
         next if entry.nil?
 
         append(
