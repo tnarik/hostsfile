@@ -1,5 +1,5 @@
 require "hostsfile/version"
+require "hostsfile/manipulator"
 
 module Hostsfile
-  # Your code goes here...
 end

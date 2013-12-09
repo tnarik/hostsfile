@@ -1,8 +1,4 @@
-#
-# Author:: Seth Vargo <sethvargo@gmail.com>
-# Cookbook:: hostsfile
-# Library:: manipulator
-#
+# Copyright 2013, Tnarik Innael
 # Copyright 2012-2013, Seth Vargo
 # Copyright 2012, CustomInk, LCC
 #
@@ -19,27 +15,25 @@
 # limitations under the License.
 #
 
-require 'chef/application'
 require 'digest/sha2'
 
+module Hostsfile
+
 class Manipulator
-  attr_reader :node
   attr_reader :entries
 
   # Create a new Manipulator object (aka an /etc/hosts manipulator). If a
-  # hostsfile is not found, a Chef::Application.fatal is risen, causing
+  # hostsfile is not found, a Exception is risen, causing
   # the process to terminate on the node and the converge will fail.
   #
   # @param [Chef::node] node
   #   the current Chef node
   # @return [Manipulator]
   #   a class designed to manipulate the node's /etc/hosts file
-  def initialize(node)
-    @node = node.to_hash
-
+  def initialize(path = nil, family = nil, system_directory = nil)
     # Fail if no hostsfile is found
     unless ::File.exists?(hostsfile_path)
-      Chef::Application.fatal! "No hostsfile exists at '#{hostsfile_path}'!"
+      raise "No hostsfile exists at '#{hostsfile_path}'!"
     end
 
     @entries = []
@@ -182,15 +176,15 @@ class Manipulator
     #
     # @return [String]
     #   the full path to the hostsfile, depending on the operating system
-    #   can also be overriden in the node attributes
-    def hostsfile_path
+    #   can also be overriden in the attributes
+    def hostsfile_path (path = nil, family = nil, system_directory = nil)
       return @hostsfile_path if @hostsfile_path
-      @hostsfile_path = node['hostsfile']['path'] || case node['platform_family']
-                                                     when 'windows'
-                                                       "#{node['kernel']['os_info']['system_directory']}\\drivers\\etc\\hosts"
-                                                     else
-                                                       '/etc/hosts'
-                                                     end
+      @hostsfile_path = path || case family
+                                  when 'windows'
+                                    "#{system_directory}\\drivers\\etc\\hosts"
+                                  else
+                                    '/etc/hosts'
+                                end
     end
 
     # The current sha of the system hostsfile.
@@ -272,4 +266,6 @@ class Manipulator
 
       nil
     end
+end
+
 end
