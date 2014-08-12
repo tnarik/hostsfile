@@ -1,5 +1,5 @@
-# Copyright 2013, Tnarik Innael
-# Copyright 2012-2013, Seth Vargo
+# Copyright 2013-14, Tnarik Innael
+# Copyright 2012-2013, Seth Vargo (from customink-webops/hostsfile/libraries/manipulator.rb)
 # Copyright 2012, CustomInk, LCC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

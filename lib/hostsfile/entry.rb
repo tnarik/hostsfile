@@ -1,5 +1,5 @@
 #
-# Author:: Seth Vargo <sethvargo@gmail.com>
+# Author:: Seth Vargo <sethvargo@gmail.com> (from customink-webops/hostsfile/libraries/entry.rb)
 # Cookbook:: hostsfile
 # Library:: entry
 #
