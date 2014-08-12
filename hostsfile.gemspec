@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
   
-  spec.add_development_dependency "ruby_gntp"
   spec.add_development_dependency "terminal-notifier-guard"
+  # Pre OS X 10.8
+  # spec.add_development_dependency "ruby_gntp"
 end
