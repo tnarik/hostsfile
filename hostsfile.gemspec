@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{code from the hostsfile cookbook to allow reusability}
   spec.description   = %q{code from the hostsfile cookbook to allow reusability}
   spec.homepage      = ""
-  spec.license       = "MIT"
+  spec.license       = "Apache-2.0"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -24,4 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
+  
+  spec.add_development_dependency "ruby_gntp"
+  spec.add_development_dependency "terminal-notifier-guard"
 end
