@@ -6,11 +6,11 @@ require 'hostsfile/version'
 Gem::Specification.new do |spec|
   spec.name          = "hostsfile"
   spec.version       = Hostsfile::VERSION
-  spec.authors       = ["tnarik"]
+  spec.authors       = ["Tnarik Innael"]
   spec.email         = ["tnarik@lecafeautomatique.co.uk"]
   spec.summary       = %q{code from the hostsfile cookbook to allow reusability}
   spec.description   = %q{code from the hostsfile cookbook to allow reusability}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/tnarik/hostsfile"
   spec.license       = "Apache-2.0"
 
   spec.files         = `git ls-files`.split($/)
@@ -18,14 +18,20 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
+  # development dependencies  
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
 
+  # development dependencies (testing)
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
   
+  # development dependencies (coverage)
+  spec.add_development_dependency 'coveralls'
+  spec.add_development_dependency 'simplecov'
+  
+  # development dependencies (notifier)
   spec.add_development_dependency "terminal-notifier-guard"
-  # Pre OS X 10.8
-  # spec.add_development_dependency "ruby_gntp"
+  # spec.add_development_dependency "ruby_gntp" # Pre OS X 10.8
 end
