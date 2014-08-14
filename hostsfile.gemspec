@@ -26,12 +26,13 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
-  
+
   # development dependencies (coverage)
   spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'simplecov'
+  spec.add_development_dependency 'simplecov-console'
   
-  # development dependencies (notifier)
+  # development dependencies (notifier), controlled by .guard.rb
   spec.add_development_dependency "terminal-notifier-guard"
-  # spec.add_development_dependency "ruby_gntp" # Pre OS X 10.8
+  spec.add_development_dependency "ruby_gntp" # Pre OS X 10.8
 end
