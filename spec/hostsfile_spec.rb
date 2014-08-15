@@ -1,35 +1,74 @@
+require 'fakefs/spec_helpers'
+
 describe Hostsfile do
   describe "::VERSION" do
-    it "exists" do
+    it "is defined" do
       expect(Hostsfile::VERSION).not_to be_empty
     end
   end
 
   describe "::Entry" do
-    it "exists" do
-      expect(Hostsfile::Entry::respond_to? :new).to eq(true)
-    end
+    let(:entry) { Hostsfile::Entry.new ip_address: "0.0.0.0", hostname: "test" }
 
     it "#to_line" do
-      h = Hostsfile::Entry.new ip_address: "0.0.0.0", hostname: "test"
-      expect(h.respond_to? :to_line).to eq(true)
+      expect(entry.respond_to? :to_line).to eq(true)
     end
 
     it "#to_line_response" do
-      h = Hostsfile::Entry.new ip_address: "0.0.0.0", hostname: "test"
-      expect(h.to_line).to eq("0.0.0.0\ttest")
+      expect(entry.to_line).to eq("0.0.0.0\ttest")
     end
 
     it "#to_s" do
-      h = Hostsfile::Entry.new ip_address: "0.0.0.0", hostname: "test"
-      expect(h.respond_to? :to_line).to eq(true)
+      expect(entry.respond_to? :to_line).to eq(true)
     end
   end
 
-  describe "::Manipulator" do
-    it "exists" do
-      expect(Hostsfile::Manipulator::respond_to? :new).to eq(true)
+  describe "::Manipulator" do 
+    include FakeFS::SpecHelpers
+
+    before(:each) do
+      fixture_to_fakefs("ipv4", "/etc/hosts")
     end
+
+    let(:manipulator) { Hostsfile::Manipulator.new }
+
+    it "reads ip addresses correctly" do
+      expect(manipulator.ip_addresses.size).to be(2)
+    end
+
+    it "can add ip addresses" do
+      expect { manipulator.add(ip_address: '192.0.2.0', hostname: 'test') }.to change{manipulator.ip_addresses.size}.from(2).to(3)
+      refreshed_manipulator = Hostsfile::Manipulator.new
+      expect(refreshed_manipulator.ip_addresses.size).to be(2)
+      manipulator.save
+      refreshed_manipulator = Hostsfile::Manipulator.new
+      expect(refreshed_manipulator.ip_addresses.size).to be(3)
+    end
+
+    it "ip addresses are added in memory only until save" do
+      manipulator.add(ip_address: '192.0.2.0', hostname: 'test')
+      refreshed_manipulator = Hostsfile::Manipulator.new
+      expect(refreshed_manipulator.ip_addresses.size).to be(2)
+      manipulator.save
+      refreshed_manipulator = Hostsfile::Manipulator.new
+      expect(refreshed_manipulator.ip_addresses.size).to be(3)
+    end
+
+    it "ip addresses are removed if existing" do
+      expect { manipulator.remove('127.0.0.1') }.to change{manipulator.ip_addresses.size}.from(2).to(1)
+    end
+
+    it "ip addresses are not removed if not existing" do
+      expect { manipulator.remove('192.0.2.0') }.not_to change{manipulator.ip_addresses.size}
+    end
+
+    it "ip addresses are removed works on memory" do
+      expect(manipulator.ip_addresses.size).to be(2)
+      manipulator.add(ip_address: '192.0.2.0', hostname: 'test')
+      expect(manipulator.ip_addresses.size).to be(3)
+      expect { manipulator.remove('192.0.2.0') }.to change{manipulator.ip_addresses.size}.from(3).to(2)
+    end
+
 
     #it "#append" do
     #  h = Hostsfile::Manipulator.new
