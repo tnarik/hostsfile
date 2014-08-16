@@ -9,18 +9,22 @@ module Hostsfile
 
 class Manipulator
   attr_reader :entries
-
   # Create a new Manipulator object (aka an /etc/hosts manipulator). If a
   # hostsfile is not found, a Exception is risen, causing
   # the process to terminate on the node and the converge will fail.
+  # Parameters are optional (see #hostsfile_path)
   #
-  # @param [Chef::node] node
-  #   the current Chef node
+  # @param [String] path
+  #   the file path for the host file
+  # @param [String] family
+  #   the OS family ('windows' or anything else for POSIX support)
+  # @param [String] system_directory
+  #   System directory for the 'windows' family (like C:\\Windows\\system32)
   # @return [Manipulator]
   #   a class designed to manipulate the node's /etc/hosts file
   def initialize(path = nil, family = nil, system_directory = nil)
     # Fail if no hostsfile is found
-    unless ::File.exists?(hostsfile_path)
+    unless ::File.exists?(hostsfile_path(path, family, system_directory))
       raise "No hostsfile exists at '#{hostsfile_path}'!"
     end
 
@@ -161,11 +165,19 @@ class Manipulator
 
   private
     # The path to the current hostsfile.
+    # If not path is provided, a default is guessed based on 'family' and 'system_directory'
+    # If path is provided, it takes priority
     #
+    # @param [String] path
+    #   the file path for the host file
+    # @param [String] family
+    #   the OS family ('windows' or anything else for POSIX support)
+    # @param [String] system_directory
+    #   System directory for the 'windows' family (default C:\\Windows\\system32)
     # @return [String]
     #   the full path to the hostsfile, depending on the operating system
     #   can also be overriden in the attributes
-    def hostsfile_path (path = nil, family = nil, system_directory = nil)
+    def hostsfile_path (path = nil, family = nil, system_directory = 'C:\\Windows\\system32')
       return @hostsfile_path if @hostsfile_path
       @hostsfile_path = path || case family
                                   when 'windows'

@@ -5,7 +5,7 @@ describe Hostsfile do
     include FakeFS::SpecHelpers
 
     before(:each) do
-      fixture_to_fakefs("ipv4", "/etc/hosts")
+      fixture_to_fakefs("sample_hosts", "/etc/hosts")
     end
 
     let(:manipulator) { Hostsfile::Manipulator.new }
@@ -17,13 +17,13 @@ describe Hostsfile do
 
       it "reads the default /etc/hosts file if none is specified" do
         expect { Hostsfile::Manipulator.new }.to_not raise_error
-        expect(Hostsfile::Manipulator.new.ip_addresses.size).to be(2)
+        expect(Hostsfile::Manipulator.new.ip_addresses.size).to be(3)
       end
     end
 
     context "#ip_addresses" do
       it "reads ip addresses correctly" do
-        expect(manipulator.ip_addresses.size).to be(2)
+        expect(manipulator.ip_addresses.size).to be(3)
       end
     end
 
@@ -40,16 +40,16 @@ describe Hostsfile do
         expect { manipulator.add(options.reject {|k| k == :ip_address}) }.to raise_error(ArgumentError)
         expect { manipulator.add(options.reject {|k| k == :hostname}) }.to raise_error(ArgumentError)
 
-        expect { manipulator.add(minimal_options) }.to change{manipulator.ip_addresses.size}.from(2).to(3)
+        expect { manipulator.add(minimal_options) }.to change{manipulator.ip_addresses.size}.from(3).to(4)
       end
 
       it "add entries in memory until save" do # Includes debugging
-        expect { manipulator.add(options) }.to change{manipulator.ip_addresses.size}.from(2).to(3)
-        refreshed_manipulator = Hostsfile::Manipulator.new
-        expect(refreshed_manipulator.ip_addresses.size).to be(2)
-        manipulator.save
+        expect { manipulator.add(options) }.to change{manipulator.ip_addresses.size}.from(3).to(4)
         refreshed_manipulator = Hostsfile::Manipulator.new
         expect(refreshed_manipulator.ip_addresses.size).to be(3)
+        manipulator.save
+        refreshed_manipulator = Hostsfile::Manipulator.new
+        expect(refreshed_manipulator.ip_addresses.size).to be(4)
         puts File.read("/etc/hosts")
       end
     end
@@ -109,14 +109,14 @@ describe Hostsfile do
         it "adds a new entry if not unique" do
           original_entry = manipulator.find_entry_by_ip_address('192.0.2.1')
           expect( original_entry.hostname ).to eq(unique_options[:hostname])
-          expect { manipulator.append(unique_options.reject {|k| k == :unique}) }.to change{manipulator.ip_addresses.size}.from(2).to(3)
+          expect { manipulator.append(unique_options.reject {|k| k == :unique}) }.to change{manipulator.ip_addresses.size}.from(3).to(4)
           expect( manipulator.find_entry_by_ip_address(unique_options[:ip_address]).hostname ).to eq(unique_options[:hostname])
           expect( manipulator.find_entry_by_ip_address(original_entry.ip_address) ).not_to be_nil
         end
       end
       context "when the entry does not exist" do
         it "adds the new entry" do
-          expect { manipulator.append(not_existing_options) }.to change{manipulator.ip_addresses.size}.from(2).to(3)
+          expect { manipulator.append(not_existing_options) }.to change{manipulator.ip_addresses.size}.from(3).to(4)
           expect( manipulator.find_entry_by_ip_address(not_existing_options[:ip_address]).hostname ).to eq('example.com')
         end
       end
@@ -125,7 +125,7 @@ describe Hostsfile do
     context "#remove" do
       context "when the entry exists" do
         it "is removed" do
-          expect { manipulator.remove('127.0.0.1') }.to change{manipulator.ip_addresses.size}.from(2).to(1)
+          expect { manipulator.remove('127.0.0.1') }.to change{manipulator.ip_addresses.size}.from(3).to(2)
         end
       end
       context "when the entry does not exist" do
@@ -148,10 +148,10 @@ describe Hostsfile do
     # Contains will probably dissapear, as it links to entries specifically
 
     it "ip addresses are removed works on memory" do
-      expect(manipulator.ip_addresses.size).to be(2)
-      manipulator.add(ip_address: '192.0.2.0', hostname: 'test')
       expect(manipulator.ip_addresses.size).to be(3)
-      expect { manipulator.remove('192.0.2.0') }.to change{manipulator.ip_addresses.size}.from(3).to(2)
+      manipulator.add(ip_address: '192.0.2.0', hostname: 'test')
+      expect(manipulator.ip_addresses.size).to be(4)
+      expect { manipulator.remove('192.0.2.0') }.to change{manipulator.ip_addresses.size}.from(4).to(3)
     end
 
   end
