@@ -16,7 +16,7 @@ $ gem install hostsfile
 
 ## Usage
 
-TODO: Write usage instructions here
+This gem has been extracted from [customink-webops/hostsfile code](https://github.com/customink-webops/hostsfile), to decouple it from Chef, so that it can be used independently.
 
 ## Contributing
 
