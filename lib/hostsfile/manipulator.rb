@@ -10,8 +10,7 @@ module Hostsfile
 class Manipulator
   attr_reader :entries
   # Create a new Manipulator object (aka an /etc/hosts manipulator). If a
-  # hostsfile is not found, a Exception is risen, causing
-  # the process to terminate on the node and the converge will fail.
+  # hostsfile is not found, a Exception is risen.
   # Parameters are optional (see #hostsfile_path)
   #
   # @param [String] path
@@ -21,7 +20,7 @@ class Manipulator
   # @param [String] system_directory
   #   System directory for the 'windows' family (like C:\\Windows\\system32)
   # @return [Manipulator]
-  #   a class designed to manipulate the node's /etc/hosts file
+  #   a class designed to manipulate the /etc/hosts file
   def initialize(path = nil, family = nil, system_directory = nil)
     # Fail if no hostsfile is found
     unless ::File.exists?(hostsfile_path(path, family, system_directory))
@@ -156,11 +155,11 @@ class Manipulator
   # Determine if the current hostsfile contains the given resource. This
   # is really just a proxy to {find_resource_by_ip_address} /
   #
-  # @param [Chef::Resource] resource
-  #
+  # @param [String] ip_address
+  #   the IP Address of the entry to find
   # @return [Boolean]
-  def contains?(resource)
-    !!find_entry_by_ip_address(resource.ip_address)
+  def contains?(ip_address)
+    !!find_entry_by_ip_address(ip_address)
   end
 
   private
@@ -177,11 +176,12 @@ class Manipulator
     # @return [String]
     #   the full path to the hostsfile, depending on the operating system
     #   can also be overriden in the attributes
-    def hostsfile_path (path = nil, family = nil, system_directory = 'C:\\Windows\\system32')
+    def hostsfile_path (path = nil, family = nil, system_directory = nil)
       return @hostsfile_path if @hostsfile_path
       @hostsfile_path = path || case family
                                   when 'windows'
-                                    "#{system_directory}\\drivers\\etc\\hosts"
+                                    system_directory ||= File.join('C:','Windows','system32')
+                                    File.join("#{system_directory}", 'drivers', 'etc', 'hosts')
                                   else
                                     '/etc/hosts'
                                 end
