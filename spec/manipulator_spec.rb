@@ -200,20 +200,3 @@ describe Hostsfile do
 
   end
 end
-
-## Manipulator
-#  def initialize(path = nil, family = nil, system_directory = nil)
-#  def ip_addresses
-#  def add(options = {})
-#  def append(options = {})
-#  def remove(ip_address)
-#  def save
-#  def find_entry_by_ip_address(ip_address)
-#  def contains?(resource)
-#  private
-#    def hostsfile_path (path = nil, family = nil, system_directory = nil)
-#    def current_sha
-#    def normalize(*things)
-#    def unique_entries
-#    def collect_and_flatten(contents)
-#    def remove_existing_hostnames(entry)

@@ -32,9 +32,9 @@ class Entry
       return nil if entries.nil? || entries.empty?
 
       # If the hostsfile has broken content:
-      if entries[0].nil?
-        raise ArgumentError, "Hostsfile has a line without IP address: #{line}"
-      end
+      #if entries[0].nil?
+      #  raise ArgumentError, "Hostsfile has a line without IP address: #{line}"
+      #end
       if entries[1].nil?
         raise ArgumentError, "Hostsfile has a line without hostname: #{line}"
       end
