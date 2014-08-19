@@ -1,3 +1,6 @@
+# Copyright 2013-14, Tnarik Innael
+#
+# Heavily based on:
 # Copyright 2012-2013, Seth Vargo (from customink-webops/hostsfile/libraries/entry.rb)
 # Copyright 2012, CustomInk, LCC
 #
@@ -28,6 +31,14 @@ class Entry
       # Return nil if the line is empty
       return nil if entries.nil? || entries.empty?
 
+      # If the hostsfile has broken content:
+      if entries[0].nil?
+        raise ArgumentError, "Hostsfile has a line without IP address: #{line}"
+      end
+      if entries[1].nil?
+        raise ArgumentError, "Hostsfile has a line without hostname: #{line}"
+      end
+
       return self.new(
         ip_address: entries[0],
         hostname:   entries[1],
@@ -38,31 +49,31 @@ class Entry
     end
 
     private
-      def extract_comment(line)
-        return nil if presence(line).nil?
-        line.split('#', 2).collect { |part| presence(part) }
-      end
+    def extract_comment(line)
+      return nil if presence(line).nil?
+      line.split('#', 2).collect { |part| presence(part) }
+    end
 
-      def extract_priority(comment)
-        return nil if comment.nil?
+    def extract_priority(comment)
+      return nil if comment.nil?
 
-        if comment.include?('@')
-          comment.split('@', 2).collect { |part| presence(part) }
-        else
-          [comment, nil]
-        end
+      if comment.include?('@')
+        comment.split('@', 2).collect { |part| presence(part) }
+      else
+        [comment, nil]
       end
+    end
 
-      def extract_entries(entry)
-        return nil if entry.nil?
-        entry.split(/\s+/).collect { |entry| presence(entry) }.compact
-      end
+    def extract_entries(entry)
+      return nil if entry.nil?
+      entry.split(/\s+/).collect { |entry| presence(entry) }.compact
+    end
 
-      def presence(string)
-        return nil if string.nil?
-        return nil if string.strip.empty?
-        string.strip
-      end
+    def presence(string)
+      return nil if string.nil?
+      return nil if string.strip.empty?
+      string.strip
+    end
   end
 
   # @return [String]
@@ -90,7 +101,7 @@ class Entry
       raise ArgumentError, ':ip_address and :hostname are both required options'
     end
 
-    @ip_address = IPAddr.new(options[:ip_address].to_s)
+    @ip_address = IPAddr.new(remove_ip_scope(options[:ip_address]))
     @hostname   = options[:hostname]
     @aliases    = [options[:aliases]].flatten.compact
     @comment    = options[:comment]
@@ -121,32 +132,6 @@ class Entry
     [ip_address, hosts, comments].compact.join("\t").strip
   end
 
-  # The string representation of this Entry
-  #
-  # @return [String]
-  #   the string representation of this entry
-  def to_s
-    "#<#{self.class.to_s} " + [
-      "ip_address: '#{ip_address}'",
-      "hostname: '#{hostname}'",
-    ].join(', ') + '>'
-  end
-
-  # The object representation of this Entry
-  #
-  # @return [String]
-  #   the object representation of this entry
-  def inspect
-    "#<#{self.class.to_s} " + [
-      "ip_address: '#{ip_address}'",
-      "hostname: '#{hostname}'",
-      "aliases: #{aliases.inspect}",
-      "comment: '#{comment}'",
-      "priority: #{priority}",
-      "calculated_priority?: #{@calculated_priority}",
-    ].join(', ') + '>'
-  end
-
   # Returns true if priority is calculated
   #
   # @return [Boolean]
@@ -156,21 +141,32 @@ class Entry
   end
 
   private
+  # Calculates the relative priority of this entry.
+  #
+  # @return [Fixnum]
+  #   the relative priority of this item
+  def calculated_priority
+    @calculated_priority = true
 
-    # Calculates the relative priority of this entry.
-    #
-    # @return [Fixnum]
-    #   the relative priority of this item
-    def calculated_priority
-      @calculated_priority = true
+    priority ||= 81 if ip_address == IPAddr.new('127.0.0.1')
+    priority ||= 80 if IPAddr.new('127.0.0.0/8').include?(ip_address) # local
+    priority ||= 60 if ip_address.ipv4? # ipv4
+    priority ||= 20 if ip_address.ipv6? # ipv6
 
-      priority ||= 81 if ip_address == IPAddr.new('127.0.0.1')
-      priority ||= 80 if IPAddr.new('127.0.0.0/8').include?(ip_address) # local
-      priority ||= 60 if ip_address.ipv4? # ipv4
-      priority ||= 20 if ip_address.ipv6? # ipv6
+    return priority || 00
+  end
 
-      return priority || 00
-    end
+  # Removes the scopes pieces of the address, because of the below reasons.
+  #
+  # @see https://bugs.ruby-lang.org/issues/8464
+  # @see https://github.com/customink-webops/hostsfile/issues/51
+  #
+  # @return [String, nil]
+  #
+  def remove_ip_scope(address)
+    return nil if address.nil?
+    address.to_s.sub(/%.*/, '')
+  end
 end
 
 end
