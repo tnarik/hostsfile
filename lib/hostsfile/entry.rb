@@ -1,8 +1,20 @@
-# Copyright 2013-14, Tnarik Innael
+# Copyright 2013-14, Tnarik Innael (for the modifications)
 #
-# Heavily based on:
-# Copyright 2012-2013, Seth Vargo (from customink-webops/hostsfile/libraries/entry.rb)
+# from customink-webops/hostsfile/libraries/entry.rb :
+# Copyright 2012-2013, Seth Vargo
 # Copyright 2012, CustomInk, LCC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 
 require 'ipaddr'
@@ -11,6 +23,7 @@ module Hostsfile
 
 # An object representation of a single line in a hostsfile.
 #
+# @author Tnarik Innale <tnarik@lecafeautomatique.co.uk>
 # @author Seth Vargo <sethvargo@gmail.com>
 class Entry
   class << self
@@ -31,10 +44,6 @@ class Entry
       # Return nil if the line is empty
       return nil if entries.nil? || entries.empty?
 
-      # If the hostsfile has broken content:
-      #if entries[0].nil?
-      #  raise ArgumentError, "Hostsfile has a line without IP address: #{line}"
-      #end
       if entries[1].nil?
         raise ArgumentError, "Hostsfile has a line without hostname: #{line}"
       end
